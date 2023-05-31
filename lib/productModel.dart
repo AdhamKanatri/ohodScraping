@@ -11,3 +11,13 @@ class Product{
     }
   );
 }
+
+class Tag{
+  String name;
+  String link;
+  Tag({
+    required this.name,
+    required this.link
+    }
+  );
+}
