@@ -2,7 +2,7 @@
     package="com.company.ohod_viewer">
     <uses-permission android:name="android.permission.INTERNET" />
     <application
-        android:label="ohod_viewer"
+        android:label="OHOD"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
@@ -32,4 +32,10 @@
             android:name="flutterEmbedding"
             android:value="2" />
     </application>
+<!--    <queries>-->
+<!--        <intent>-->
+<!--            <action android:name="android.intent.action.VIEW" />-->
+<!--            <data android:scheme="tel" />-->
+<!--        </intent>-->
+<!--    </queries>-->
 </manifest>
