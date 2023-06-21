@@ -1,16 +1,14 @@
 # ohod_viewer
 
-A new Flutter application.
+This is a Flutter application using scraping technology for a private store without any database. This app represents that Customizable Beautiful UI can be implemented with the Best Performance possible.
 
-## Getting Started
+## Things implemented in this App
 
-This project is a starting point for a Flutter application.
+This was the first actual Flutter app using scraping technology. My intention was to implement as many things as possible so that I could learn these things. This application contains the implementation of the following:
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+    Custom Firebase Text by Text Search.
+    Customizing Status Bar & Navigation Tab.
+    PageView.
+    Creative flash snackbar.
+    Custom Icon & Splash Screen.
+    Various Material Components.
