@@ -6,9 +6,11 @@ This is a Flutter application using scraping technology for a private store with
 
 This was the first actual Flutter app using scraping technology. My intention was to implement as many things as possible so that I could learn these things. This application contains the implementation of the following:
 
+    Inexpensive alternative solutions for ordering goods.
     Custom Firebase Text by Text Search.
     Customizing Status Bar & Navigation Tab.
     PageView.
-    Creative flash snackbar.
+    Scraping technology using http library.
     Custom Icon & Splash Screen.
+    Creative flash snackbar.
     Various Material Components.
