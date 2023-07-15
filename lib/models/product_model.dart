@@ -3,14 +3,17 @@ class Product{
   String code;
   String image;
   String price;
+  int quantity;
   Product({
     required this.name,
     required this.code,
     required this.image,
     required this.price,
+    this.quantity = 0
     }
   );
 }
+
 
 class Tag{
   String name;

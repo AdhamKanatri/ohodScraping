@@ -1,6 +1,6 @@
 import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' as parser;
-import 'package:ohod_viewer/productModel.dart';
+import 'package:ohod_viewer/models/product_model.dart';
 
 class ProductWebScraper {
   final String url;
@@ -34,7 +34,7 @@ class ProductWebScraper {
             .querySelector('.o_wsale_products_grid_table_wrapper')!
             .children;
         for (int i = 0; i < productLength; i++) {
-          container.forEach((element) {
+          for (var element in container) {
             try {
               final div = element
                   .getElementsByClassName("o_wsale_product_grid_wrapper")[i];
@@ -58,7 +58,7 @@ class ProductWebScraper {
             } catch (e) {
               print(e);
             }
-          });
+          }
         }
       }
     }
@@ -83,14 +83,14 @@ class TagWebScraper {
           html.querySelector(".o_wsale_filmstip_container")!.children;
       for (int t = 0; t < tagLength; t++) {
         try {
-          tagContainer.forEach((element) {
+          for (var element in tagContainer) {
             final tagDiv = element.getElementsByTagName("ul li")[t];
             final tagLink = tagDiv.attributes["data-link-href"];
             String tagName = tagDiv.text;
             tag.add(Tag(
                 name: tagName,
                 link: "https://finishing-store.odoo.com${tagLink}"));
-          });
+          }
         } on Exception catch (e) {
           print(e);
         }
