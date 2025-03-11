@@ -1,13 +1,11 @@
-// import 'package:cloud_firestore/cloud_firestore.dart';
-// import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:ohod_viewer/customClass/custom_method.dart';
 import 'package:ohod_viewer/screens/cart.dart';
 import 'package:ohod_viewer/models/product_model.dart';
 import 'package:flash/flash.dart';
 import 'package:ohod_viewer/models/provider_model.dart';
 import 'package:provider/provider.dart';
-// import 'package:url_launcher/url_launcher.dart';
 
 class ProductInfo extends StatefulWidget {
   static String id = "ProductInfo";
@@ -19,12 +17,6 @@ class ProductInfo extends StatefulWidget {
 }
 
 class _ProductInfoState extends State<ProductInfo> {
-  Map<String, Color> tagColors = {
-    "E8": Colors.greenAccent,
-    "KB": Colors.greenAccent,
-    "LE": Colors.orange,
-    "PH": Colors.blue
-  };
 
   int _quantity = 1;
 
@@ -51,7 +43,10 @@ class _ProductInfoState extends State<ProductInfo> {
     });
   }
 
-  flashMessage({required String message, required Color color, required Color backColor}) {
+  flashMessage(
+      {required String message,
+        required Color color,
+        required Color backColor}) {
     showFlash(
         context: context,
         duration: const Duration(seconds: 3),
@@ -93,26 +88,35 @@ class _ProductInfoState extends State<ProductInfo> {
   void addToCart(context, product) {
     Cart cartItem = Provider.of<Cart>(context, listen: false);
     product.quantity = _quantity;
-    bool exist = false;
+    bool exist = false, count = false;
     var productsInCart = cartItem.products;
     for (var productInCart in productsInCart) {
-      if (productInCart == product) {
+      if (productInCart.code == product.code) {
         exist = true;
+        if (productInCart.quantity != product.quantity) {
+          count = true;
+          productInCart.quantity = product.quantity;
+        }
       }
     }
-    if (exist) {
+    if (count) {
       flashMessage(
-          message: 'it was add to cart before',
-          color: Colors.yellowAccent,
-          backColor: Colors.yellowAccent.shade100,
+        message: 'Edit quantity success',
+        color: Colors.blueAccent,
+        backColor: Colors.blueAccent.shade100,
+      );
+    } else if (exist) {
+      flashMessage(
+        message: 'it was add to cart before',
+        color: Colors.yellowAccent,
+        backColor: Colors.yellowAccent.shade100,
       );
     } else {
       cartItem.add(product);
       flashMessage(
           message: 'added to cart',
           color: Colors.green,
-          backColor: Colors.greenAccent.shade100
-      );
+          backColor: Colors.greenAccent.shade100);
     }
   }
 
@@ -121,6 +125,31 @@ class _ProductInfoState extends State<ProductInfo> {
     Product product = ModalRoute.of(context)!.settings.arguments as Product;
     return SafeArea(child: Consumer<Cart>(builder: (context, cart, child) {
       return Scaffold(
+        backgroundColor: Colors.white,
+        appBar: AppBar(
+          backgroundColor: Colors.white70,
+          actions: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(
+                        Icons.shopping_cart,
+                      ),
+                      onPressed: () {
+                        Navigator.pushNamed(context, CartViewer.id);
+                      },
+                    ),
+                    Text("${cart.count.toString()}   "),
+                  ],
+                )
+              ],
+            ),
+          ],
+          foregroundColor: Colors.black,
+        ),
         body: Form(
           key: _globalKey,
           child: Center(
@@ -129,71 +158,98 @@ class _ProductInfoState extends State<ProductInfo> {
               scrollDirection: Axis.vertical,
               child: Column(
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      IconButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          icon: const Icon(
-                            Icons.arrow_back,
-                            color: Colors.black,
-                          )),
-                      Row(
-                        children: [
-                          IconButton(
-                            icon: const Icon(
-                              Icons.shopping_cart,
-                            ),
-                            onPressed: () {
-                              Navigator.pushNamed(context, CartViewer.id);
-                            },
-                          ),
-                          Text("${cart.count.toString()}   "),
-                        ],
-                      )
-                    ],
-                  ),
                   InteractiveViewer(
                     panEnabled: false, // Set it to false
                     boundaryMargin: const EdgeInsets.all(100),
                     minScale: 0.5,
                     maxScale: 5,
-                    child: Image.network(
-                        product.image.replaceFirst("image_512", "image_1024"),
-                        loadingBuilder:(context, widget, imageChunkEvent){
-                          if (imageChunkEvent == null) {
-                            return widget;
-                          }
-                          return Center(
-                            child: LinearProgressIndicator(
-                              value: imageChunkEvent.expectedTotalBytes != null
-                                  ? imageChunkEvent.cumulativeBytesLoaded /
+                    child: product.image == "empty"
+                        ? const SizedBox(
+                      height: 400,
+                      width: 400,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text("Image"),
+                          Text("coming soon"),
+                          Icon(Icons.image_not_supported_outlined),
+                        ],
+                      ),
+                    )
+                        : Image.network(
+                      product.image,
+                      width: 400,
+                      height: 400,
+                      loadingBuilder: (context, widget, imageChunkEvent) {
+                        if (imageChunkEvent == null) {
+                          return widget;
+                        }
+                        return SizedBox(
+                          height: 400,
+                          width: 400,
+                          child: Center(
+                            child: CircularProgressIndicator(
+                              value: imageChunkEvent.expectedTotalBytes !=
+                                  null
+                                  ? imageChunkEvent
+                                  .cumulativeBytesLoaded /
                                   imageChunkEvent.expectedTotalBytes!
                                   : null,
-                              color: tagColors[product.code.substring(0,2)],
+                              color: Color(colorValue(product.name)),
                             ),
-                          );
-                        }
+                          ),
+                        );
+                      },
+                      errorBuilder: (context, object, stackTrace) {
+                        return const SizedBox(
+                          height: 400,
+                          width: 400,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text("Image"),
+                              Text("coming soon"),
+                              Icon(Icons.image_not_supported_outlined),
+                            ],
+                          ),
+                        );
+                      },
                     ),
                   ),
                   Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Text(
                         product.name,
-                        style: const TextStyle(fontSize: 16),
+                        style: const TextStyle(fontWeight: FontWeight.bold),
                       )),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Text("Item code: ${product.code}"),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text("Item code: "),
+                        SelectableText.rich(
+                            TextSpan(children: [TextSpan(text: product.code)])),
+                      ],
+                    ),
                   ),
+                  // Padding(
+                  //   padding: const EdgeInsets.all(8.0),
+                  //   child: Card(
+                  //       color: Colors.redAccent[100],
+                  //       child: Text(
+                  //         "SR  ${product.price}",
+                  //         style: const TextStyle(
+                  //             decoration: TextDecoration.lineThrough),
+                  //       )),
+                  // ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Card(
                         color: Colors.cyanAccent,
                         child: Text(
-                          "SR  ${product.price}",
+                          'SR ${(product.price)}',
+                          style: const TextStyle(fontWeight: FontWeight.bold),
                         )),
                   ),
                   Row(
@@ -243,14 +299,14 @@ class _ProductInfoState extends State<ProductInfo> {
                             _quantity = int.parse(value!);
                           },
                           onChanged: (value) {
-                            if (value.trim() == "0" || value.isEmpty) {
-                              controller.text = "1";
-                            } else if (value[0] == "0") {
+                            if (value[0] == "0") {
                               controller.text = value.substring(1);
                             }
                           },
                           validator: (value) {
                             if (value!.isEmpty) {
+                              controller.text = "1";
+                            } else if (value[0] == "0") {
                               controller.text = "1";
                             }
                             return null;
@@ -261,16 +317,16 @@ class _ProductInfoState extends State<ProductInfo> {
                             FilteringTextInputFormatter.allow(
                                 RegExp(r"[0-9.]")),
                             TextInputFormatter.withFunction(
-                                (oldValue, newValue) {
-                              try {
-                                final text = newValue.text;
-                                if (text.isNotEmpty) double.parse(text);
-                                return newValue;
-                              } catch (e) {
-                                return oldValue;
-                              }
-                              // return oldValue;
-                            }),
+                                    (oldValue, newValue) {
+                                  try {
+                                    final text = newValue.text;
+                                    if (text.isNotEmpty) double.parse(text);
+                                    return newValue;
+                                  } catch (e) {
+                                    return oldValue;
+                                  }
+                                  // return oldValue;
+                                }),
                           ],
                           style: const TextStyle(
                             fontSize: 20,
@@ -284,13 +340,16 @@ class _ProductInfoState extends State<ProductInfo> {
                               fillColor: Colors.white,
                               enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(40),
-                                  borderSide: const BorderSide(color: Colors.white)),
+                                  borderSide:
+                                  const BorderSide(color: Colors.white)),
                               focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(40),
-                                  borderSide: const BorderSide(color: Colors.red)),
+                                  borderSide:
+                                  const BorderSide(color: Colors.red)),
                               border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(40),
-                                  borderSide: const BorderSide(color: Colors.red)),
+                                  borderSide:
+                                  const BorderSide(color: Colors.red)),
                               errorStyle: TextStyle(
                                 color: Colors.redAccent[100],
                                 fontSize: 20,
@@ -330,30 +389,32 @@ class _ProductInfoState extends State<ProductInfo> {
                     height: 10,
                   ),
                   Padding(
-                    padding: const EdgeInsets.only(left: 15.0, right: 15.0, bottom: 10),
+                    padding: const EdgeInsets.only(
+                        left: 15.0, right: 15.0, bottom: 10),
                     child: MaterialButton(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 20.0,
-                        ),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
-                        color: Colors.blueAccent,
-                        onPressed: () {
-                          if (_globalKey.currentState!.validate()) {
-                            _globalKey.currentState!.save();
-                            addToCart(context, product);
-                          }
-                        },
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 20.0,
+                      ),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(50)),
+                      color: Color(colorValue(product.name)),
+                      onPressed: () {
+                        if (_globalKey.currentState!.validate()) {
+                          _globalKey.currentState!.save();
+                          addToCart(context, product);
+                        }
+                      },
                       child: const Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.add_shopping_cart),
-                        SizedBox(width: 20),
-                        Text(
-                          "Add to cart",
-                        ),
-                      ],
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.add_shopping_cart),
+                          SizedBox(width: 20),
+                          Text(
+                            "Add to cart",
+                          ),
+                        ],
+                      ),
                     ),
-                        ),
                   ),
                   const SizedBox(
                     height: 10,

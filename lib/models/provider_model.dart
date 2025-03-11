@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ohod_viewer/models/product_model.dart';
 
+
 class Cart extends ChangeNotifier {
   List<Product> products = [];
 
@@ -21,5 +22,18 @@ class Cart extends ChangeNotifier {
 
   List<Product> get basketItems {
     return products;
+  }
+}
+class Discount extends ChangeNotifier {
+  double _discount = 0;
+
+  void update(double discountPer) {
+    _discount = discountPer;
+    notifyListeners();
+  }
+
+
+  double get discount {
+    return _discount;
   }
 }
